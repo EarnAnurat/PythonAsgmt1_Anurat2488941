@@ -75,7 +75,7 @@ def cal(wl,abbr):
     # Create a string from words and a list of position of each letter
     lgth = 0; 
     str = "";  
-    pos = [];                       
+    pos = [];                       # List of positions of characters in each word
     for x in wl:
         str += x;                   # "ANURATWONGBUNMAKDUNDEE"
         pos += list(range(len(x))); # [0,1,2,3,4,0,1,2,3,0,1,2,3,4,5]
@@ -88,3 +88,49 @@ def cal(wl,abbr):
     fst = [];                       # potential first abbreviations
     snd = [];                       # potential second abbreviations
     trd = [];                       # potential third abbreviations
+    n = 0;
+    for i in str:
+        if i == abbr[0]:
+            fst.append(n); # append i from str to list of fst if == abbr[0] 
+        if i == abbr[1]:
+            snd.append(n); # append i from str to list of snd if == abbr[1]
+        if i == abbr[2]:
+            trd.append(n); # append i from str to list of trd if == abbr[2]
+        n += 1
+    
+    # Create a set[tuple] of positions of potential abbreviation with only the right order
+    settp = {(x,y,z) for x in fst for y in snd for z in trd if x<y and y<z}; # {(0, 2, 3), (0, 2, 6)}
+
+    # value based on how common/uncommon this letter is in English
+    values = {'A' : 25,'B' : 8,'C' : 8,'D' : 9,'E' : 35,'F' : 7,'G' : 9,'H' : 7,'I' : 25,'J' : 3,'K' : 6,'L' : 15,'M' : 8,'N' : 15,'O' : 20,'P' : 8,'Q' : 1,'R' : 15,'S' : 15,'T' : 15,'U' : 20,'V' : 7,'W' : 7,'X' : 3,'Y' : 7,'Z' : 1}
+
+    # The lower is the better
+    lowscore = 100;
+    for t in settp:                             
+        score = 0;
+        n = 0;
+        for c in t:                           # c is position/char of abbr in string ex.(0,3,7)
+            if pos[c] == 0:                   # pos is the list of positions of characters in each word
+                score += 0;                   # ex.[0,1,2,3,0,1,2] z[4] = 0 
+                n += 1;                       # the first letter is always the first letter ofthe name, so it does not get a score
+                continue;                     # continue statement rejects all the remaining statements in the current iteration of the loop and moves the control back to the top of the loop.
+            if c == len(pos)-1 and abbr[n] == 'E':
+                score += 20;                  # last letter of word and the letter is "E", the score is 20
+                n += 1;
+                continue;
+            if c == len(pos)-1:              
+                score += 5;                   # if a letter is the last letter of a word in the name then it has score 5
+                n += 1;
+                continue;
+            if pos[c] == 1:                    # second letter + a values
+                score += 1 + values[abbr[n]]; 
+                n += 1;
+                continue;
+            if pos[c] == 2:                    # third letter + a values
+                score += 2 + values[abbr[n]];
+                n += 1;
+                continue;
+            score += 3 + values[abbr[n]];     # any other position + a value
+            n += 1;
+        lowscore = min(lowscore,score);       # Return the lowest score
+    return lowscore;
