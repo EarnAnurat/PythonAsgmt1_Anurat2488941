@@ -13,8 +13,8 @@ def readfile(fname):
     if(fname[-4:] != ".txt"):
         fname += ".txt";                # open the file
     infile = open(fname);               # infile is the opened file object that we will read from
-    linelist = infile.readlines(fname); # read all of the lines into a list, where each line of the file is an item in the list
-    infile.close(fname);                # close opened file
+    linelist = infile.readlines();      # read all of the lines into a list, where each line of the file is an item in the list
+    infile.close();                     # close opened file
     return linelist;                    # Now, we get the data call "linelist" which is a list of all the lines
 
 # Use words(name) to generate a list of words that are appropriate for abbreviations
@@ -88,7 +88,7 @@ def cal(wl,abbr):
     fst = [];                       # potential first abbreviations
     snd = [];                       # potential second abbreviations
     trd = [];                       # potential third abbreviations
-    n = 0;
+    n = 0; 
     for i in str:
         if i == abbr[0]:
             fst.append(n); # append i from str to list of fst if == abbr[0] 
@@ -105,10 +105,10 @@ def cal(wl,abbr):
     values = {'A' : 25,'B' : 8,'C' : 8,'D' : 9,'E' : 35,'F' : 7,'G' : 9,'H' : 7,'I' : 25,'J' : 3,'K' : 6,'L' : 15,'M' : 8,'N' : 15,'O' : 20,'P' : 8,'Q' : 1,'R' : 15,'S' : 15,'T' : 15,'U' : 20,'V' : 7,'W' : 7,'X' : 3,'Y' : 7,'Z' : 1}
 
     # The lower is the better
-    lowscore = 100;
+    lowscore = 100; 
     for t in settp:                             
-        score = 0;
-        n = 0;
+        score = 0; 
+        n = 0; 
         for c in t:                           # c is position/char of abbr in string ex.(0,3,7)
             if pos[c] == 0:                   # pos is the list of positions of characters in each word
                 score += 0;                   # ex.[0,1,2,3,0,1,2] z[4] = 0 
@@ -116,21 +116,96 @@ def cal(wl,abbr):
                 continue;                     # continue statement rejects all the remaining statements in the current iteration of the loop and moves the control back to the top of the loop.
             if c == len(pos)-1 and abbr[n] == 'E':
                 score += 20;                  # last letter of word and the letter is "E", the score is 20
-                n += 1;
-                continue;
+                n += 1; 
+                continue; 
             if c == len(pos)-1:              
                 score += 5;                   # if a letter is the last letter of a word in the name then it has score 5
-                n += 1;
-                continue;
+                n += 1; 
+                continue; 
             if pos[c] == 1:                    # second letter + a values
                 score += 1 + values[abbr[n]]; 
-                n += 1;
-                continue;
+                n += 1; 
+                continue; 
             if pos[c] == 2:                    # third letter + a values
-                score += 2 + values[abbr[n]];
-                n += 1;
-                continue;
+                score += 2 + values[abbr[n]]; 
+                n += 1; 
+                continue; 
             score += 3 + values[abbr[n]];     # any other position + a value
-            n += 1;
+            n += 1; 
         lowscore = min(lowscore,score);       # Return the lowest score
-    return lowscore;
+    return lowscore; 
+
+# This main() acts as a starting point for code that performs the primary purpose of the script.
+def main():
+    """main() will start execute other functions"""
+    fname = input("Please enter a file name: "); 
+
+    # First, get the data name linelist which is a list where each line in .txt file is an item
+    # Also, check the file name is valid; if not, "Please enter a file name: " again
+    while True:
+        try:                              # The try block lets you test a block of code for errors
+            linelist = readfile(fname);   # read the file with readinput(fname)
+            if(len(linelist) >0):         # If there is a data, break
+                break; 
+        except:                           # If there is no data, call input() again
+            pass; 
+        fname = input('File is not found. Please enter a valid file name:'); 
+    
+    # Create a list of the best abbreviations to be a final result
+    n = 0; 
+    aabbr = [];                           # List of sets of all abbreviations
+    unqabbr = [];                         # List of sets of unique abbreviations that do not repeat in other names
+    for x in linelist:
+        aabbr.append(allabbr(words(x))); 
+    
+    for x in aabbr:
+        othabbr = set([]);                      # Set of all abbreviations from other names
+        for y in range(len(aabbr)):             # 0,1
+            if y != n:                          # Collect all abbreviations from other names ex. (y != n) ==> n=0{'ERN', 'EAN', 'EAR'} , y=1{'EIN', 'EIG', 'ENG'}
+                othabbr = othabbr|aabbr[y];     # use OR | operation to create a set of othabbr: {'EIG', 'EAR', 'EIN', 'EAN', 'ENG', 'ERN'}
+        unqabbr.append(x - othabbr);            # Create list of sets of unique abbreviations
+        n += 1                                  # Now, unqabr is the remain of abbr of x that not repeat in other, unique  or occur just once
+    
+    # create a list of set of final abbreviation
+    n = 0
+    finabbr = []
+    for x in unqabbr:           # [{'ERR'}, set(), {'ENG', 'EIG', 'EIN'}]
+        if(len(x) == 0):        # If a name has no abbreviation left in the set of possible abbreviations(pabb),
+            finabbr.append([]); # [] will be set to be its abbreviation.
+            n += 1;
+            continue; 
+        
+        ##### Find the minimum score
+        minscore = 100;
+        for y in x:                                             # y1{'ERR'}, y2set(), y345{'ENG', 'EIG', 'EIN'}
+            minscore = min(minscore,cal(words(linelist[n]),y)); # use words(linelist[n]) in here to prepare data for cal
+            
+        ##### Create a list of lists of final abbreviations
+        finabbr.append([y for y in x if cal(words(linelist[n]),y) == minscore])
+        n += 1;
+
+    ##### Write the output file #####
+    if(fname[-4:] == '.txt'):
+        fname = fname[:len(fname)-4];
+    outfile = open("AnuratWongbunmak_"+fname+'_abbrevs.txt','w');
+    for n in range(len(finabbr)):
+        print(linelist[n].strip(),' : ',finabbr[n]);   ###Print output on the screen
+
+        if(n == len(finabbr)-1):
+            outfile.write(str(linelist[n].strip()));        ###Write original names
+            outfile.write('\n');                            ###Last name put the end of line
+
+        else:
+            outfile.write(str(linelist[n]));            ###Write original names
+            
+        if(len(finabbr[n]) == 0):
+            outfile.write('\n');                    ###If no possible abbreviation, skip the line
+        else:
+            for i in finabbr[n]:
+                outfile.write(i+' ');
+            outfile.write('\n');
+    outfile.close()
+
+# Running a module 
+if __name__ == "__main__": # The first line is to ensure that when the module is simply imported, the function is not called
+    main();                # Then the module can be run from an ordinary Windows command prompt
