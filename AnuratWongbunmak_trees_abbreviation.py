@@ -122,15 +122,15 @@ def cal(wl,abbr):
                 score += 5;                   # if a letter is the last letter of a word in the name then it has score 5
                 n += 1; 
                 continue; 
-            if pos[c] == 1:                    # second letter + a values
+            if pos[c] == 1:                    # second letter + values
                 score += 1 + values[abbr[n]]; 
                 n += 1; 
                 continue; 
-            if pos[c] == 2:                    # third letter + a values
+            if pos[c] == 2:                    # third letter + values
                 score += 2 + values[abbr[n]]; 
                 n += 1; 
                 continue; 
-            score += 3 + values[abbr[n]];     # any other position + a value
+            score += 3 + values[abbr[n]];     # any other position + value
             n += 1; 
         lowscore = min(lowscore,score);       # Return the lowest score
     return lowscore; 
@@ -189,17 +189,17 @@ def main():
         fname = fname[:len(fname)-4];
     outfile = open("AnuratWongbunmak_"+fname+'_abbrevs.txt','w');
     for n in range(len(finabbr)):
-        print(linelist[n].strip(),' : ',finabbr[n]);   ###Print output on the screen
+        print(linelist[n].strip(),' : ',finabbr[n]);   # print output
 
         if(n == len(finabbr)-1):
-            outfile.write(str(linelist[n].strip()));        ###Write original names
-            outfile.write('\n');                            ###Last name put the end of line
+            outfile.write(str(linelist[n].strip()));   # Write original names
+            outfile.write('\n');                       # Last name put the end of line
 
         else:
-            outfile.write(str(linelist[n]));            ###Write original names
+            outfile.write(str(linelist[n]));           # Write names
             
         if(len(finabbr[n]) == 0):
-            outfile.write('\n');                    ###If no possible abbreviation, skip the line
+            outfile.write('\n');                       # If no possible abbreviation, skip the line
         else:
             for i in finabbr[n]:
                 outfile.write(i+' ');
